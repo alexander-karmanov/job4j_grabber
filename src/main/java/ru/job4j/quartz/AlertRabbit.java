@@ -34,11 +34,10 @@ public class AlertRabbit {
         int interval = Integer.parseInt(AlertRabbit.getProperties().getProperty("rabbit.interval"));
         try {
             Connection cn = AlertRabbit.init();
-            List<Long> store = new ArrayList<>();
             Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
             scheduler.start();
             JobDataMap data = new JobDataMap();
-            data.put("store", store);
+            data.put("connection", cn);
             JobDetail job = newJob(Rabbit.class)
                     .usingJobData(data)
                     .build();
@@ -50,9 +49,9 @@ public class AlertRabbit {
                     .withSchedule(times)
                     .build();
             scheduler.scheduleJob(job, trigger);
-            Thread.sleep(5000);
+            Thread.sleep(10000);
             scheduler.shutdown();
-            System.out.println(store);
+            System.out.println(cn);
         } catch (Exception se) {
             se.printStackTrace();
         }
@@ -70,10 +69,11 @@ public class AlertRabbit {
         public Rabbit() {
             System.out.println(hashCode());
         }
+
         @Override
         public void execute(JobExecutionContext context) {
             System.out.println("Rabbit runs here ...");
-            List<Long> store = (List<Long>) context.getJobDetail().getJobDataMap().get("store");
+            List<Long> store = (List<Long>) context.getJobDetail().getJobDataMap().get("connection");
             store.add(System.currentTimeMillis());
         }
     }
