@@ -13,8 +13,21 @@ public class HabrCareerParse {
     public static final String PREFIX = "/vacancies?page=";
     public static final String SUFFIX = "&q=Java%20developer&type=all";
 
+    private String retrieveDescription(String link) throws IOException {
+        final String[] description = {""};
+        Connection connection = Jsoup.connect(link);
+        Document document = connection.get();
+        Elements rows = document.select(".faded-content__body");
+        rows.forEach(row -> {
+            Element titleElement = row.select(".vacancy-description__text").first();
+            description[0] = titleElement.text();
+            System.out.println(description[0]);
+        });
+        return description[0];
+    }
+
     public static void main(String[] args) throws IOException {
-        for (int pageNumber = 1; pageNumber < 6; pageNumber++) {
+         for (int pageNumber = 1; pageNumber < 6; pageNumber++) {
             String fullLink = "%s%s%d%s".formatted(SOURCE_LINK, PREFIX, pageNumber, SUFFIX);
             Connection connection = Jsoup.connect(fullLink);
             Document document = connection.get();
