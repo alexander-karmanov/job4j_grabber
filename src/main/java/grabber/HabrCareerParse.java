@@ -17,6 +17,8 @@ public class HabrCareerParse implements Parse {
     public static final String PREFIX = "/vacancies?page=";
     public static final String SUFFIX = "&q=Java%20developer&type=all";
 
+    public static final int PAGES = 6;
+
     private final DateTimeParser dateTimeParser;
 
     public HabrCareerParse(DateTimeParser dateTimeParser) {
@@ -44,14 +46,13 @@ public class HabrCareerParse implements Parse {
         String description = retrieveDescription(vacancylink);
         Element dateElement = row.select(".vacancy-card__date").first();
         Element date = dateElement.child(0);
-        HabrCareerDateTimeParser dateTimeParser = new HabrCareerDateTimeParser();
         LocalDateTime vacancyDate = dateTimeParser.parse(date.attr("datetime"));
         return new Post(vacancyName, vacancylink, description, vacancyDate);
     }
 
     public static void main(String[] args) {
         String fullLink = "%s%s%d%s".formatted(SOURCE_LINK, PREFIX, 1, SUFFIX);
-        HabrCareerParse habrCareerParse = new HabrCareerParse(parse -> null);
+        HabrCareerParse habrCareerParse = new HabrCareerParse(new HabrCareerDateTimeParser());
         List<Post> vacancy = habrCareerParse.list(fullLink);
         for (Post vacancies : vacancy) {
             System.out.println(vacancies);
@@ -63,7 +64,7 @@ public class HabrCareerParse implements Parse {
         /*  метод добавления готовых постов в список  */
         List<Post> vacancies = new ArrayList<>();
         try {
-            for (int pageNumber = 1; pageNumber < 6; pageNumber++) {
+            for (int pageNumber = 1; pageNumber < PAGES; pageNumber++) {
                 Connection connection = Jsoup.connect(link);
                 Document document = connection.get();
                 Elements rows = document.select(".vacancy-card__inner");
