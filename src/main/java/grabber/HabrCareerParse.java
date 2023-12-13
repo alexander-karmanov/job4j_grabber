@@ -47,7 +47,8 @@ public class HabrCareerParse implements Parse {
         Element dateElement = row.select(".vacancy-card__date").first();
         Element date = dateElement.child(0);
         LocalDateTime vacancyDate = dateTimeParser.parse(date.attr("datetime"));
-        return new Post(vacancyName, vacancylink, description, vacancyDate);
+        int id = 0;
+        return new Post(id, vacancyName, vacancylink, description, vacancyDate);
     }
 
     public static void main(String[] args) {
