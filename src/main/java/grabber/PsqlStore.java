@@ -45,6 +45,17 @@ public class PsqlStore implements Store {
         }
     }
 
+    private Post getPost(ResultSet resultSet) throws SQLException {
+        Post post = new Post(
+                resultSet.getInt("id"),
+                resultSet.getString("name"),
+                resultSet.getString("text"),
+                resultSet.getString("link"),
+                resultSet.getTimestamp("created").toLocalDateTime()
+        );
+        return post;
+    }
+
     @Override
     public List<Post> getAll() {
         List<Post> allPosts = new ArrayList<>();
@@ -52,13 +63,8 @@ public class PsqlStore implements Store {
             PreparedStatement statement = cnn.prepareStatement("SELECT * FROM post;");
             ResultSet resultSet = statement.executeQuery();
              while (resultSet.next()) {
-                allPosts.add(new Post(
-                        resultSet.getInt("id"),
-                        resultSet.getString("name"),
-                        resultSet.getString("text"),
-                        resultSet.getString("link"),
-                        resultSet.getTimestamp("created").toLocalDateTime()
-                ));
+                Post post = getPost(resultSet);
+                allPosts.add(post);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -68,24 +74,18 @@ public class PsqlStore implements Store {
 
     @Override
     public Post findById(int id) {
-        Post post = null;
+        Post postFound = null;
         try {
             PreparedStatement statement = cnn.prepareStatement("SELECT * FROM post WHERE id = ?");
             statement.setInt(1, id);
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
-                post = new Post(
-                        resultSet.getInt("id"),
-                        resultSet.getString("name"),
-                        resultSet.getString("text"),
-                        resultSet.getString("link"),
-                        resultSet.getTimestamp("created").toLocalDateTime()
-                );
+                postFound = getPost(resultSet);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return post;
+        return postFound;
     }
 
     @Override
