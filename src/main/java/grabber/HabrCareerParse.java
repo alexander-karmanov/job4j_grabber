@@ -51,15 +51,6 @@ public class HabrCareerParse implements Parse {
         return new Post(id, vacancyName, vacancylink, description, vacancyDate);
     }
 
-    public static void main(String[] args) {
-        String fullLink = "%s%s%d%s".formatted(SOURCE_LINK, PREFIX, 1, SUFFIX);
-        HabrCareerParse habrCareerParse = new HabrCareerParse(new HabrCareerDateTimeParser());
-        List<Post> vacancy = habrCareerParse.list(fullLink);
-        for (Post vacancies : vacancy) {
-            System.out.println(vacancies);
-        }
-    }
-
     @Override
     public List<Post> list(String link) {
         /*  метод добавления готовых постов в список  */

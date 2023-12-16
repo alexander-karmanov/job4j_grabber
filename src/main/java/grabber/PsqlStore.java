@@ -45,76 +45,10 @@ public class PsqlStore implements Store {
         }
     }
 
-    private Post getPost(ResultSet resultSet) throws SQLException {
-        Post post = new Post(
-                resultSet.getInt("id"),
-                resultSet.getString("name"),
-                resultSet.getString("text"),
-                resultSet.getString("link"),
-                resultSet.getTimestamp("created").toLocalDateTime()
-        );
-        return post;
-    }
-
-    @Override
-    public List<Post> getAll() {
-        List<Post> allPosts = new ArrayList<>();
-        try {
-            PreparedStatement statement = cnn.prepareStatement("SELECT * FROM post;");
-            ResultSet resultSet = statement.executeQuery();
-             while (resultSet.next()) {
-                Post post = getPost(resultSet);
-                allPosts.add(post);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return allPosts;
-    }
-
-    @Override
-    public Post findById(int id) {
-        Post postFound = null;
-        try {
-            PreparedStatement statement = cnn.prepareStatement("SELECT * FROM post WHERE id = ?");
-            statement.setInt(1, id);
-            ResultSet resultSet = statement.executeQuery();
-            while (resultSet.next()) {
-                postFound = getPost(resultSet);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return postFound;
-    }
-
     @Override
     public void close() throws Exception {
         if (cnn != null) {
             cnn.close();
         }
-    }
-
-    public static void main(String[] args) {
-        Properties properties = new Properties();
-        try (InputStream in = PsqlStore.class.getClassLoader().getResourceAsStream("app.properties")) {
-            properties.load(in);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-        PsqlStore psqlStore = new PsqlStore(properties);
-        HabrCareerDateTimeParser dateTimeParser = new HabrCareerDateTimeParser();
-        Post post = new Post(1, "Middle Java developer (приложение Инвестиции)",
-                "https://career.habr.com/vacancies/1000120919",
-                "description",
-                dateTimeParser.parse("2023-12-11T11:27:12+03:00"));
-        psqlStore.save(post);
-        List<Post> allPosts = psqlStore.getAll();
-        System.out.println("Все данные:");
-        for (Post postOut: allPosts) {
-            System.out.println("post = " + postOut);
-        }
-        Post postFound = psqlStore.findById(1);
-        System.out.println("Найденная по id запись = " + postFound);
     }
 }
