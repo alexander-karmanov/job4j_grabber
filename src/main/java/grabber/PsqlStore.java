@@ -45,6 +45,33 @@ public class PsqlStore implements Store {
         }
     }
 
+    private Post getPost(ResultSet resultSet) throws SQLException {
+        Post post = new Post(
+                resultSet.getInt("id"),
+                resultSet.getString("name"),
+                resultSet.getString("text"),
+                resultSet.getString("link"),
+                resultSet.getTimestamp("created").toLocalDateTime()
+        );
+        return post;
+    }
+
+    @Override
+    public List<Post> getAll() {
+        List<Post> allPosts = new ArrayList<>();
+        try {
+            PreparedStatement statement = cnn.prepareStatement("SELECT * FROM post;");
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                Post post = getPost(resultSet);
+                allPosts.add(post);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return allPosts;
+    }
+
     @Override
     public void close() throws Exception {
         if (cnn != null) {
